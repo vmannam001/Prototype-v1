@@ -12,7 +12,7 @@ user_id,role,department,resource,action,old_decision
 5,manager,IT,api1,read,permitted
 5,manager,finance,db1,delete,denied
 5,admin,IT,file1,delete,permitted
-5,admin,finance,file1,read,permitted
+5,admin,finance,file1,write,permitted
 6,user,finance,api1,delete,denied
 7,admin,finance,db1,read,permitted
 7,manager,finance,file1,delete,denied
