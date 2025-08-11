@@ -23,7 +23,6 @@ def run_simulation(log_file, old_policy_path, new_policy_path):
     with open(log_file, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # This dictionary contains all the details for a single access request.
             request_params = {
                 'role': row['role'],
                 'department': row['department'],
@@ -31,7 +30,6 @@ def run_simulation(log_file, old_policy_path, new_policy_path):
                 'action': row['action']
             }
 
-            # We now pass the entire dictionary directly to the evaluator.
             old_dec, old_reason = evaluate_request(old_policy, request_params)
             new_dec, new_reason = evaluate_request(new_policy, request_params)
 
@@ -43,14 +41,19 @@ def run_simulation(log_file, old_policy_path, new_policy_path):
                     'change': f"{old_dec} -> {new_dec}",
                     'why': why
                 })
-    
+
     write_report(affected_users)
 
 def write_report(affected_users):
     """Writes the simulation results to simulation_result.txt."""
     with open('simulation_result.txt', 'w') as out_f:
         out_f.write("## 📜 Policy Impact Analysis\n\n")
-        
+
+        # --- NEWLY ADDED LINE ---
+        total_affected_users = len(affected_users)
+        out_f.write(f"**Summary:** **{total_affected_users}** unique users are affected by this policy change.\n\n")
+        # --- END OF NEWLY ADDED LINE ---
+
         denied_users = {k: [c for c in v if '-> denied' in c['change']] for k, v in affected_users.items() if any('-> denied' in c['change'] for c in v)}
         if denied_users:
             out_f.write("### ❌ Users Who Will Lose Access\n")
@@ -58,7 +61,7 @@ def write_report(affected_users):
                 out_f.write(f"- **User `{user_id}`**:\n")
                 for change in changes:
                     out_f.write(f"  - For `{change['action']}` on `{change['resource']}`, will be **denied**. *Reason: {change['why']}*\n")
-        
+
         permitted_users = {k: [c for c in v if '-> permitted' in c['change']] for k, v in affected_users.items() if any('-> permitted' in c['change'] for c in v)}
         if permitted_users:
             out_f.write("\n### ✅ Users Who Will Gain Access\n")
@@ -68,14 +71,15 @@ def write_report(affected_users):
                     out_f.write(f"  - For `{change['action']}` on `{change['resource']}`, will now be **permitted**.\n")
 
         if not denied_users and not permitted_users:
+            # This line will now only appear if the total affected users is 0
             out_f.write("✅ **No access changes detected for any user based on the historical logs.**\n")
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:
         print("Usage: python policy_simulation.py <path_to_old_policy.json> <path_to_new_policy.json>")
         sys.exit(1)
-    
+
     old_file_path = sys.argv[1]
     new_file_path = sys.argv[2]
-    
+
     run_simulation('access_logs.csv', old_file_path, new_file_path)
