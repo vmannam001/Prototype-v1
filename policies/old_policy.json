@@ -1,34 +1,36 @@
 {
-  "description": "New Policy: Permit only if role is admin. Explicitly deny non-admins.",
+  "description": "Old Policy: Permit for admins or IT department. Special rule for writes on file2.",
   "rules": [
     {
       "conditions": {
-        "role": "admin",
         "action": "write",
-        "department": "IT"
+        "resource": "file2",
+        "role": "admin"
       },
       "decision": "permitted",
-      "reason": "Allowed: Admin write from IT department."
+      "reason": "Allowed by admin role for write on file2"
     },
     {
       "conditions": {
-        "role": "admin",
-        "action": "write"
+        "action": "write",
+        "resource": "file2"
       },
       "decision": "denied",
-      "reason": "Denied: Admin write requires IT department."
+      "reason": "Denied: Non-admin write on file2"
     },
     {
-        "conditions": {
-            "role": "admin"
-        },
-        "decision": "permitted",
-        "reason": "Allowed by admin role."
+      "conditions": {
+        "role": "admin"
+      },
+      "decision": "permitted",
+      "reason": "Allowed by admin role"
     },
     {
-        "conditions": {},
-        "decision": "denied",
-        "reason": "Denied: Non-admin role"
+      "conditions": {
+        "department": "IT"
+      },
+      "decision": "permitted",
+      "reason": "Allowed by IT department"
     }
   ]
 }
